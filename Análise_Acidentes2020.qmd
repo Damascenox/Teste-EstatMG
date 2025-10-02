@@ -73,7 +73,45 @@ interessantes envolvem os veículos, uma vez que a mediana é 1,0, enquanto a m�
 O número máximo de pessoas envolvidas é de 14; no entanto, a média é de 2,23 pessoas.
 Considerando as mortes e os feridos graves, a mediana, o primeiro e o terceiro quartil
 são zero. Portanto, pelo menos 75% de todos os acidentes neste dataset não tiveram
-vítimas fatais.
+vítimas fatais. 
+
+
+Além disso, existem pouquíssimos valores ausentes (NA), concentrados nas colunas `br` e `km`, que se referem, respectivamente, à rodovia e ao quilômetro onde o acidente ocorreu. Essas ausências correspondem a cerca de 6,12% do total de observações. Tais observações não aparentam ter um padrão em comum, seja em localização, número de vítimas ou tipo de acidente, o que sugere que podem ser falhas no momento do registro dos dados ou acidentes em locais não formalmente catalogados.
+
+```{r}
+
+casos_br_faltante <- Acidentes_2020 |>
+
+filter(is.na(br)) |>
+
+select(where(~ !is.numeric(.x)))
+
+casos_br_faltante <- casos_br_faltante |>
+  dplyr::rename(
+    Data = data_inversa,
+    Dia = dia_semana,
+    Hora = horario,
+    Acidente = tipo_acidente,
+    Fase = fase_dia,
+    Clima = condicao_metereologica,
+    Pista = tipo_pista,
+    Mun = municipio
+  )
+
+reactable(
+  casos_br_faltante, # Usando a tibble com nomes curtos
+  striped = TRUE,
+  highlight = TRUE,
+  bordered = TRUE,
+  theme = reactableTheme(
+    headerStyle = list(
+      backgroundColor = "#F57F17",
+      fontWeight = "bold",
+      color = "white"
+    )
+  )
+)
+```
 
 A matriz de correlação (Método de Spearman) indicou, em sua maioria, relações con-
 sideradas óbvias entre as variáveis. Como no correlogramas abaixo
@@ -126,42 +164,6 @@ ggcorrplot(matriz_cor,
 ```
 As correlações mais fortes estão relacionadas ao número de pessoas envolvidas e suas consequências imediatas. Logicamente, se há mais pessoas, haverá mais veículos, feridos e ilesos. O restante das correlações observadas parece ser bem razoável.
 
-Além disso, existem pouquíssimos valores ausentes (NA), concentrados nas colunas `br` e `km`, que se referem, respectivamente, à rodovia e ao quilômetro onde o acidente ocorreu. Essas ausências correspondem a cerca de 6,12% do total de observações. Tais observações não aparentam ter um padrão em comum, seja em localização, número de vítimas ou tipo de acidente, o que sugere que podem ser falhas no momento do registro dos dados ou acidentes em locais não formalmente catalogados.
-
-```{r}
-
-casos_br_faltante <- Acidentes_2020 |>
-
-filter(is.na(br)) |>
-
-select(where(~ !is.numeric(.x)))
-
-casos_br_faltante <- casos_br_faltante |>
-  dplyr::rename(
-    data = data_inversa,
-    dia = dia_semana,
-    hora = horario,
-    acidente = tipo_acidente,
-    fase = fase_dia,
-    clima = condicao_metereologica,
-    pista = tipo_pista,
-    mun = municipio
-  )
-
-reactable(
-  casos_br_faltante, # Usando a tibble com nomes curtos
-  striped = TRUE,
-  highlight = TRUE,
-  bordered = TRUE,
-  theme = reactableTheme(
-    headerStyle = list(
-      backgroundColor = "#F57F17",
-      fontWeight = "bold",
-      color = "white"
-    )
-  )
-)
-```
 As medidas de associação, por outro lado, trazem resultados mais curiosos. O município onde aconteceu o acidente parece ter relação com a maioria das variáveis, o que pode significar que municípios com estruturas viárias piores ou mais antigas influenciam o tipo de ocorrência. Além disso, o tipo de pista parece estar bem associado ao tipo de acidente.
 ```{r}
 #| include: false
