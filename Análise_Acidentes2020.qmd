@@ -38,7 +38,7 @@ library(leaflet)
 library(scales)
 ```
 
-## Resumo 
+## Resumo
 
 Com base na análise de acidentes rodoviários de 2020, os principais pontos de risco foram identificados, revelando padrões geográficos, temporais e de condições específicas. ​A análise mostra que, embora Betim tenha o maior volume de acidentes, Patos de Minas apresenta a maior taxa de mortalidade. As rodovias BR-381 e BR-040 são as mais perigosas, com quilômetros específicos na BR-040 apontados como de alta criticidade. O tipo de acidente mais comum é a "saída de leito carroçável". ​Fatores como o clima e o tipo de pista também são determinantes: a neblina e as pistas simples estão associadas a uma maior severidade dos acidentes. ​Temporalmente, os finais de semana concentram a maior frequência de ocorrências. O horário mais letal é a madrugada, apesar de a maioria dos acidentes ocorrer nos horários de pico. Observou-se também uma queda atípica em abril, possivelmente pela pandemia de COVID-19, e um pico em dezembro, relacionado às viagens de fim de ano.
 
@@ -54,27 +54,18 @@ Acidentes_2020$horario <- as_hms(Acidentes_2020$horario)
 
 **Tabela 1.1: Resumo detalhado das variáveis do dataset de acidentes.**
 
-| Informação           | Variável                                                               |
-| :------------------- | :--------------------------------------------------------------------- |
-| **Onde e Quando**    | id \| data \| dia \| horário \| uf \| **br** (6% NA) \| **km** (6% NA) \| município |
-| **Como Aconteceu**   | tipo_acidente \| fase_dia \| condicao_metereologica \| tipo_pista      |
-| **Impacto do Acidente** | pessoas \| mortos \| feridos \| ilesos \| veiculos                      |
-| **Localização Precisa** | latitude \| longitude                                                  |
+| Informação | Variável |
+|:------------------|:----------------------------------------------------|
+| **Onde e Quando** | id \| data \| dia \| horário \| uf \| **br** (6% NA) \| **km** (6% NA) \| município |
+| **Como Aconteceu** | tipo_acidente \| fase_dia \| condicao_metereologica \| tipo_pista |
+| **Impacto do Acidente** | pessoas \| mortos \| feridos \| ilesos \| veiculos |
+| **Localização Precisa** | latitude \| longitude |
 
 ### 1.1.1 Estatísticas Descritivas
 
-A análise das estatísticas descritivas das variáveis numéricas não revelou, à primeira
-vista, dados suspeitos ou a existência de outliers evidentes, considerando valores como
-o número máximo e mínimo de feridos, o desvio padrão e a variância. Alguns achados
-interessantes envolvem os veículos, uma vez que a mediana é 1,0, enquanto a média
-é 1,55. Isso significa que mais de 50% dos acidentes registrados envolvem apenas um
-único veículo.
+A análise das estatísticas descritivas das variáveis numéricas não revelou, à primeira vista, dados suspeitos ou a existência de outliers evidentes, considerando valores como o número máximo e mínimo de feridos, o desvio padrão e a variância. Alguns achados interessantes envolvem os veículos, uma vez que a mediana é 1,0, enquanto a média é 1,55. Isso significa que mais de 50% dos acidentes registrados envolvem apenas um único veículo.
 
-O número máximo de pessoas envolvidas é de 14; no entanto, a média é de 2,23 pessoas.
-Considerando as mortes e os feridos graves, a mediana, o primeiro e o terceiro quartil
-são zero. Portanto, pelo menos 75% de todos os acidentes neste dataset não tiveram
-vítimas fatais. 
-
+O número máximo de pessoas envolvidas é de 14; no entanto, a média é de 2,23 pessoas. Considerando as mortes e os feridos graves, a mediana, o primeiro e o terceiro quartil são zero. Portanto, pelo menos 75% de todos os acidentes neste dataset não tiveram vítimas fatais.
 
 Além disso, existem pouquíssimos valores ausentes (NA), concentrados nas colunas `br` e `km`, que se referem, respectivamente, à rodovia e ao quilômetro onde o acidente ocorreu. Essas ausências correspondem a cerca de 6,12% do total de observações. Tais observações não aparentam ter um padrão em comum, seja em localização, número de vítimas ou tipo de acidente, o que sugere que podem ser falhas no momento do registro dos dados ou acidentes em locais não formalmente catalogados.
 
@@ -113,8 +104,7 @@ reactable(
 )
 ```
 
-A matriz de correlação (Método de Spearman) indicou, em sua maioria, relações con-
-sideradas óbvias entre as variáveis. Como no correlogramas abaixo
+A matriz de correlação (Método de Spearman) indicou, em sua maioria, relações con- sideradas óbvias entre as variáveis. Como no correlogramas abaixo
 
 ```{r}
 dados_numericos <- Acidentes_2020 |>
@@ -162,9 +152,11 @@ ggcorrplot(matriz_cor,
     legend.key.spacing.y = unit(3, "pt") 
   )
 ```
+
 As correlações mais fortes estão relacionadas ao número de pessoas envolvidas e suas consequências imediatas. Logicamente, se há mais pessoas, haverá mais veículos, feridos e ilesos. O restante das correlações observadas parece ser bem razoável.
 
 As medidas de associação, por outro lado, trazem resultados mais curiosos. O município onde aconteceu o acidente parece ter relação com a maioria das variáveis, o que pode significar que municípios com estruturas viárias piores ou mais antigas influenciam o tipo de ocorrência. Além disso, o tipo de pista parece estar bem associado ao tipo de acidente.
+
 ```{r}
 #| include: false
 dados_categoricos <- Acidentes_2020 |>
@@ -202,6 +194,7 @@ rownames(mat) <- c(
 )
 
 ```
+
 ```{r}
 
 ggcorrplot(mat,
@@ -242,20 +235,61 @@ Diante desse cenário e para realizar tanto as análises solicitadas quanto outr
 
 ### Eixos de Análise Propostos
 
-1.  **Análise das Causas de Acidentes:**
-    *   (a) Distribuição por condição meteorológica.
-    *   (b) Distribuição por tipo de pista.
-2.  **Análise de Variáveis Temporais:**
-    *   (a) Evolução mensal do número de acidentes.
-    *   (b) Distribuição de acidentes por dia da semana.
-    *   (c) Distribuição por faixa de horário.
-3.  **Análise de Variáveis Geográficas:**
-    *   (a) Distribuição geográfica de mortos e feridos.
-    *   (b) Ranking das 10 principais rodovias (BRs) com maior número de ocorrências.
-4.  **Métricas e Proporções Chave:**
-    *   (a) Taxa de mortalidade
-    *   (b) Taxa de feridos graves
-    *   (c) Taxa de ilesos
+1.  
+
+    ## **Análise das Causas de Acidentes:**
+
+    ```         
+    (a) Distribuição por condição meteorológica.
+    ```
+
+    -   
+
+        (b) Distribuição por tipo de pista.
+
+2.  
+
+    ## **Análise de Variáveis Temporais:**
+
+    ```         
+    (a) Evolução mensal do número de acidentes.
+    ```
+
+    -   
+
+        (b) Distribuição de acidentes por dia da semana.
+
+    -   
+
+        (c) Distribuição por faixa de horário.
+
+3.  
+
+    ## **Análise de Variáveis Geográficas:**
+
+    ```         
+    (a) Distribuição geográfica de mortos e feridos.
+    ```
+
+    -   
+
+        (b) Ranking das 10 principais rodovias (BRs) com maior número de ocorrências.
+
+4.  
+
+    ## **Métricas e Proporções Chave:**
+
+    ```         
+    (a) Taxa de mortalidade
+    ```
+
+    -   
+
+        (b) Taxa de feridos graves
+
+    -   
+
+        (c) Taxa de ilesos
 
 ## 1.2 Análise das Causas de Acidentes
 
@@ -323,6 +357,7 @@ reactable(
   )
 )
 ```
+
 Quanto à influência do clima, observa-se que a maioria dos acidentes ocorre sob céu limpo. No entanto, a taxa de mortalidade é substancialmente maior em condições de neblina, o que reforça a necessidade de condução cuidadosa neste contexto.
 
 ```{r}
@@ -370,6 +405,7 @@ grafico_severidade <- ggplot(df_plot, aes(x = `Condição Meteorológica`)) +
 
 grafico_severidade
 ```
+
 ### Distribuição por Tipo de Pista
 
 ```{r}
@@ -444,9 +480,8 @@ reactable(
   )
 )
 ```
+
 Embora o tipo de pista não apresente uma correlação intensa com a mortalidade geral, nota-se uma maior concentração de mortes em acidentes ocorridos em pistas simples.
-
-
 
 ### Distribuição por Tipo de Acidente
 
@@ -489,6 +524,7 @@ reactable(
   )
 )
 ```
+
 O tipo de acidente mais frequente é a "saída de leito carroçável", correspondendo a 25% do total das ocorrências. Este evento ocorre quando um veículo sai da pista e se desloca para uma área adjacente (barranco, ribanceira, etc.).
 
 ```{r}
@@ -528,6 +564,7 @@ scale_fill_gradient(
  legend.position = "right", panel.grid = element_blank()
  )
 ```
+
 De acordo com o plot, pistas Duplas e Múltiplas mostram maior propensão a acidentes relacionados ao fluxo (colisão traseira), enquanto a pista Simples evidencia o alto risco de acidentes severos como a colisão frontal.
 
 ```{r}
@@ -567,6 +604,7 @@ plot_letalidade_tipo
 
 
 ```
+
 ## 1.3 Análise Temporal
 
 ### Acidentes por Mês
@@ -622,6 +660,7 @@ reactable(
   )
 )
 ```
+
 Dezembro destaca-se como o mês com o maior número de acidentes, uma tendência que pode ser atribuída ao aumento do tráfego durante as viagens de fim de ano. Em oposição, abril regista o menor volume de ocorrências, um resultado provavelmente relacionado com o fenómeno do isolamento social.
 
 ```{r}
@@ -656,9 +695,8 @@ ggplot(acidentes_mensais, aes(x = mes_ano, y = total_acidentes)) +
 
 
 ```
+
 A análise mensal do total de acidentes revela uma queda acentuada em abril, que pode ser inferida como um resultado das restrições impostas pela pandemia de COVID-19. Em contrapartida, observa-se um pico de ocorrências em dezembro, possivelmente associado às viagens de fim de ano.
-
-
 
 ```{r}
 
@@ -686,9 +724,8 @@ ggplot(acidentes_dia_semana_final, aes(x = dia_semana_fator, y = media_acidentes
   theme_minimal()
 
 ```
+
 Quanto à distribuição semanal, sexta-feira, sábado e domingo são os dias com maior volume de acidentes, o que pode ser atribuído ao aumento do fluxo de veículos devido a lazer, viagens e outros compromissos de fim de semana.
-
-
 
 ### Acidentes por Dia da Semana
 
@@ -740,7 +777,6 @@ reactable(
 )
 ```
 
-
 ```{r}
 
 
@@ -781,6 +817,7 @@ plot_heatmap_dia_fase <- ggplot(heatmap_data, aes(x = dia_semana_fator, y = fase
 
 plot_heatmap_dia_fase
 ```
+
 As manhãs de sábado apresentam a maior proporção de ocorrências (19,5%), despontando como o período mais crítico. Em seguida, as noites de sexta-feira a domingo formam um bloco de alto risco, com proporções que variam de 16,9% a 18,5%. Este padrão sugere que o início e o fim dos períodos de lazer do fim de semana são momentos que demandam maior atenção e possíveis ações preventivas.
 
 ### Acidentes por Hora do Dia
@@ -831,6 +868,7 @@ reactable(
   )
 )
 ```
+
 ```{r}
 
 faixas_ordem <- c("madrugada (00h-05h)", "manhã (06h-11h)", "tarde (12h-17h)", "noite (18h-23h)")
@@ -902,6 +940,7 @@ ggplot(df_contagem, aes(x = hora_dia, y = total_acidentes)) +
     axis.line.y.right = element_line(color = "#D32F2F")
   )
 ```
+
 ```{r}
 
 ggplot(acidentes_por_hora, aes(x = hora_dia, y = total_acidentes)) +
@@ -917,6 +956,7 @@ ggplot(acidentes_por_hora, aes(x = hora_dia, y = total_acidentes)) +
   scale_x_continuous(breaks = seq(0, 23, by = 2)) +
   theme_minimal()
 ```
+
 A análise por horário acompanha a mesma lógica dos dias úteis, com picos de acidentes no início da manhã (aproximadamente às 6h) e no final da tarde, coincidindo com os horários de deslocamento para o trabalho. No entanto, a mortalidade segue um padrão distinto: a madrugada concentra o maior número de mortes, com um aumento progressivo que se inicia no começo da noite.
 
 ## 1.4 Análise Geográfica
@@ -970,6 +1010,7 @@ reactable(
   )
 )
 ```
+
 Na análise das variáveis geográficas, percebe-se que, embora o município de Betim registre o maior número absoluto de acidentes, Patos de Minas apresenta o maior número de mortes.
 
 ### Top 10 Rodovias (BRs) com Mais Ocorrências
@@ -1057,8 +1098,8 @@ reactable(
   )
 )
 ```
-As rodovias BR-381 e BR-040 concentram o maior número de ocorrências, um dado consistente com a reputação de ambas. Uma análise mais detalhada por quilómetro revela que a BR-040 domina o ranking de pontos críticos, especialmente nos KMs 510 e 511. Esta concentração sugere a provável existência de uma falha grave de planeamento ou segurança nesse trecho específico.
 
+As rodovias BR-381 e BR-040 concentram o maior número de ocorrências, um dado consistente com a reputação de ambas. Uma análise mais detalhada por quilómetro revela que a BR-040 domina o ranking de pontos críticos, especialmente nos KMs 510 e 511. Esta concentração sugere a provável existência de uma falha grave de planeamento ou segurança nesse trecho específico.
 
 ## 1.5 Métricas e Proporções Chave
 
@@ -1087,15 +1128,17 @@ metricas_chave <- data.frame(
 )
 
 ```
+
 ## Taxas de Severidade e Ilesos (2020)
 
-| Métrica | Valor (%) | Total Absoluto |
-| :--- | :---: | ---: |
-| Taxa de Mortalidade | 3.58% | 521 |
-| Taxa de Feridos Graves | 12.66% | 1.845 |
-| Taxa de Ilesos | 39.70% | 5.785 |
+| Métrica                | Valor (%) | Total Absoluto |
+|:-----------------------|:---------:|---------------:|
+| Taxa de Mortalidade    |   3.58%   |            521 |
+| Taxa de Feridos Graves |  12.66%   |          1.845 |
+| Taxa de Ilesos         |  39.70%   |          5.785 |
 
 As taxas gerais do conjunto de dados revelam uma percentagem de acidentes fatais que, embora baixa, é significativa. A análise gráfica indica que, na maioria das ocorrências com vítimas fatais, regista-se apenas uma morte por acidente.
+
 ```{r}
 
 # 2. Gráfico de barras para o número de mortos por acidente
@@ -1115,6 +1158,7 @@ plot_bar_mortos <- Acidentes_2020 |>
 
 plot_bar_mortos
 ```
+
 Para a análise da distribuição geográfica dos acidentes, foram gerados dois mapas interativos.
 
 O primeiro mapa representa cada acidente como um círculo, onde o raio é proporcional à gravidade do evento (número de mortos). Esta visualização permite a rápida identificação dos acidentes mais letais e sua localização exata.
@@ -1180,7 +1224,7 @@ mapa_leaflet_cluster <- Acidentes_para_leaflet |>
 mapa_leaflet_cluster
 ```
 
-##Conclusão
+## Conclusão
 
 Este trabalho analisou os acidentes rodoviários em Minas Gerais durante o ano de 2020. A análise revelou que as rodovias BR-381 e BR-040 são os principais focos de ocorrências, com pontos específicos na BR-040 apresentando uma concentração de acidentes.
 
@@ -1188,17 +1232,13 @@ Temporalmente, os finais de semana e os horários de pico (manhã e final de tar
 
 Os resultados apontam para a necessidade de intervenções estratégicas. A fiscalização deve ser intensificada nos trechos mais críticos identificados. Campanhas de segurança devem alertar para os perigos específicos da condução na madrugada e em condições climáticas adversas. A longo prazo, o investimento na melhoria da infraestrutura.
 
-Embora limitado ao ano atípico de 2020, os dados se mostraram muito relevantes e completos, com diversas têndencias ao longo do EDA, como texto prático gostei muito de realizar o trabalho, agradeço a EstatMG pela oportunidade e quem sabe fazer parte do time! 
+Embora limitado ao ano atípico de 2020, os dados se mostraram muito relevantes e completos, com diversas têndencias ao longo do EDA, como texto prático gostei muito de realizar o trabalho, agradeço a EstatMG pela oportunidade e quem sabe fazer parte do time!
 
 Obrigado pela Atenção.
+
 ```{css}
 .bar-cell {
   padding: 4px 8px;
   border-radius: 4px;
 }
 ```
-
-
-
-
-
